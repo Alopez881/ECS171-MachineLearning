@@ -19,4 +19,4 @@ with st.expander('Data'):
   y
 
 with st.expander('Data visualization'):
-  st.scatter_chart(data=df, x='thumbsUpCount', y='score', color='appId')
+  st.scatter_chart(data=df, x='score', y='thumbsUpCount', color='appId')

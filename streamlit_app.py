@@ -17,3 +17,6 @@ with st.expander('Data'):
   st.write('**y**')
   y = df.score
   y
+
+with st.expander('Data visualization'):
+  st.scatter_chart(data=df, x='thumbsUpCount', y='score', color='reviewId')

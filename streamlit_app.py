@@ -18,7 +18,7 @@ model = load_model()
 # --- Load Dataset ---
 @st.cache_data
 def load_data():
-    return pd.read_csv("preprocessed_reviews.csv")
+    return pd.read_csv("https://raw.githubusercontent.com/Alopez881/ECS171-MachineLearning/refs/heads/master/preprocessed_reviews.csv")
 
 df = load_data()
 

@@ -100,7 +100,7 @@ with st.expander("📅 Sentiment Over Time"):
 with st.expander("🔍 Browse Reviews by Sentiment"):
     choice = st.radio("Show reviews that are...", ["All", "Positive", "Negative"])
     if choice == "All":
-        st.dataframe(df[df.sentiment_binary == 0 | df.sentiment_binary == 1][["content", "score"]].head(250))
+        st.dataframe(df[(df.sentiment_binary == 0) | (df.sentiment_binary == 1)][["content", "score"]].head(250))
     elif choice == "Negative":
         st.dataframe(df[df.sentiment_binary == 0][["content", "score"]].head(20))
     elif choice == "Positive":

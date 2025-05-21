@@ -90,10 +90,10 @@ with st.expander("📄 Most Common Words by Sentiment"):
 
 
 # --- Sentiment Over Time ---
-with st.expander("📈 Sentiment Over Time (Line Chart)"):
-    df['at'] = pd.to_datetime(df['at'], errors='coerce')  # make sure dates are parsed
-    daily_sentiment = df.dropna(subset=['at']).groupby(df['at'].dt.date)['sentiment_binary'].mean()
-    st.line_chart(daily_sentiment)
+with st.expander("📊 Average Sentiment Over Time (Bar Chart)"):
+    df['at'] = pd.to_datetime(df['at'], errors='coerce')
+    daily_avg = df.dropna(subset=['at']).groupby(df['at'].dt.date)['sentiment_binary'].mean()
+    st.bar_chart(daily_avg)
 
 # --- Review Browser ---
 with st.expander("🔍 Browse Reviews by Sentiment"):

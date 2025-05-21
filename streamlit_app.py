@@ -74,7 +74,7 @@ with st.expander("📊 Sentiment Distribution"):
 def get_top_words(series, n=10):
     words = " ".join(series).split()
     top = Counter(words).most_common(n)
-    return pd.DataFrame(top, columns=["Word", "Count"])
+    #return pd.DataFrame(top, columns=["Word", "Count"])
 
 with st.expander("📄 Most Common Words by Sentiment"):
     st.markdown("**Top words in Positive Reviews**")
@@ -82,13 +82,6 @@ with st.expander("📄 Most Common Words by Sentiment"):
     st.markdown("**Top words in Negative Reviews**")
     st.dataframe(get_top_words(df[df.sentiment_binary == 0]["cleaned_text"]))
 
-# --- Top Predictive Words (Static Placeholder) ---
-with st.expander("🧠 Top Words That Predict Sentiment"):
-    st.write("These are placeholder words from logistic regression results.")
-    st.dataframe(pd.DataFrame({
-        "Positive Words": ["love", "great", "easy", "helpful", "amazing"],
-        "Negative Words": ["useless", "uninstalled", "doesn't", "buggy", "complicated"]
-    }))
 
 # --- Sentiment Over Time ---
 with st.expander("📅 Sentiment Over Time"):

@@ -5,7 +5,7 @@ from collections import Counter
 
 # --- Page Setup ---
 st.set_page_config(page_title="App Review Sentiment Analyzer", page_icon="💬", layout="centered")
-st.title("💬 App Review Sentiment Analyzer")
+st.title("📱 App Review Sentiment Analyzer")
 st.markdown("Type a review and this app will predict whether it's **positive** or **negative**.")
 
 # --- Load Model ---
@@ -74,7 +74,7 @@ with st.expander("📊 Sentiment Distribution"):
 def get_top_words(series, n=10):
     words = " ".join(series).split()
     top = Counter(words).most_common(n)
-    #return pd.DataFrame(top, columns=["Word", "Count"])
+    return pd.DataFrame(top, columns=["Word", "Count"])
 
 with st.expander("📄 Most Common Words by Sentiment"):
     st.markdown("**Top words in Positive Reviews**")
@@ -95,8 +95,15 @@ with st.expander("🔍 Browse Reviews by Sentiment"):
     if choice == "All":
         st.dataframe(df[df['score'].isin([1, 2, 3, 4, 5])][["content", "score"]].head(500))
     elif choice == "Negative":
-        st.dataframe(df[df['score'].isin([1, 2])][["content", "score"]].head(250))
+        score_1 = df[df['score'] == 1][["content", "score"]].head(125)
+        score_2 = df[df['score'] == 2][["content", "score"]].head(125)
+        negative_reviews = pd.concat([score_1, score_2], ignore_index=True)
+        st.dataframe(negative_reviews)
+        #st.dataframe(df[df['score'].isin([1, 2])][["content", "score"]].head(250))
     elif choice == "Positive":
-        st.dataframe(df[df['score'].isin([4, 5])][["content", "score"]].head(250))
+        score_4 = df[df['score'] == 4][["content", "score"]].head(125)
+        score_5 = df[df['score'] == 5][["content", "score"]].head(125)
+        positive_reviews = pd.concat([score_4, score_5], ignore_index=True)
+        st.dataframe(positive_reviews)
+        #st.dataframe(df[df['score'].isin([4, 5])][["content", "score"]].head(250))
 
-        

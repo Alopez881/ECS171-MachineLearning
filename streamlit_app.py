@@ -93,16 +93,16 @@ with st.expander("📅 Sentiment Over Time"):
 with st.expander("🔍 Browse Reviews by Sentiment"):
     choice = st.radio("Show reviews that are...", ["All", "Positive", "Negative"])
     if choice == "All":
-        st.dataframe(df[df['score'].isin([1, 2, 3, 4, 5])][["content", "score"]].head(500))
+        st.dataframe(df[df['score'].isin([1, 2, 4, 5])][["content", "score"]].head(800))
     elif choice == "Negative":
-        score_1 = df[df['score'] == 1][["content", "score"]].head(125)
-        score_2 = df[df['score'] == 2][["content", "score"]].head(125)
+        score_1 = df[df['score'] == 1][["content", "score"]].head(150)
+        score_2 = df[df['score'] == 2][["content", "score"]].head(150)
         negative_reviews = pd.concat([score_1, score_2], ignore_index=True)
         st.dataframe(negative_reviews)
         #st.dataframe(df[df['score'].isin([1, 2])][["content", "score"]].head(250))
     elif choice == "Positive":
-        score_4 = df[df['score'] == 4][["content", "score"]].head(125)
-        score_5 = df[df['score'] == 5][["content", "score"]].head(125)
+        score_4 = df[df['score'] == 4][["content", "score"]].head(150)
+        score_5 = df[df['score'] == 5][["content", "score"]].head(150)
         positive_reviews = pd.concat([score_4, score_5], ignore_index=True)
         st.dataframe(positive_reviews)
         #st.dataframe(df[df['score'].isin([4, 5])][["content", "score"]].head(250))

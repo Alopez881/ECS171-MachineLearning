@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 # --- Page Setup ---
@@ -40,32 +39,34 @@ if submitted:
 # --- Sentiment Distribution ---
 with st.expander("📊 Sentiment Distribution"):
     st.write("Shows how many reviews are positive vs. negative.")
-    sentiment_counts = df["sentiment_binary"].value_counts()
+    sentiment_counts = df["sentiment_binary"].value_counts().rename({0: "Negative", 1: "Positive"})
     st.bar_chart(sentiment_counts)
 
-# --- Word Clouds ---
+# --- Word Clouds (Still Uses PIL, but Works on Cloud) ---
 with st.expander("☁️ Word Clouds"):
     st.markdown("**Positive Reviews**")
     pos_text = " ".join(df[df.sentiment_binary == 1]["cleaned_text"])
-    st.image(WordCloud(width=600, height=300).generate(pos_text).to_array())
+    pos_cloud = WordCloud(width=600, height=300).generate(pos_text)
+    st.image(pos_cloud.to_array(), caption="Words from positive reviews")
 
     st.markdown("**Negative Reviews**")
     neg_text = " ".join(df[df.sentiment_binary == 0]["cleaned_text"])
-    st.image(WordCloud(width=600, height=300).generate(neg_text).to_array())
+    neg_cloud = WordCloud(width=600, height=300).generate(neg_text)
+    st.image(neg_cloud.to_array(), caption="Words from negative reviews")
 
 # --- Top Predictive Words ---
 with st.expander("🧠 Top Words That Predict Sentiment"):
     st.write("These are placeholder words from logistic regression results.")
-    st.write(pd.DataFrame({
+    st.dataframe(pd.DataFrame({
         "Positive Words": ["love", "great", "easy", "helpful", "amazing"],
         "Negative Words": ["useless", "uninstalled", "doesn't", "buggy", "complicated"]
     }))
 
-# --- Sentiment Over Time ---
+# --- Sentiment Over Time (Using Streamlit line_chart) ---
 with st.expander("📅 Sentiment Over Time"):
     df['at'] = pd.to_datetime(df['at'], errors='coerce')
-    daily_sentiment = df.dropna(subset=['at']).groupby(df['at'].dt.date)['sentiment_binary'].mean()
-    st.line_chart(daily_sentiment)
+    sentiment_by_day = df.dropna(subset=['at']).groupby(df['at'].dt.date)['sentiment_binary'].mean()
+    st.line_chart(sentiment_by_day)
 
 # --- Review Browser ---
 with st.expander("🔍 Browse Reviews by Sentiment"):

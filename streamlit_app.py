@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from wordcloud import WordCloud
+from collections import Counter
 
 # --- Page Setup ---
 st.set_page_config(page_title="App Review Sentiment Analyzer", page_icon="💬", layout="centered")
@@ -42,19 +42,20 @@ with st.expander("📊 Sentiment Distribution"):
     sentiment_counts = df["sentiment_binary"].value_counts().rename({0: "Negative", 1: "Positive"})
     st.bar_chart(sentiment_counts)
 
-# --- Word Clouds (Still Uses PIL, but Works on Cloud) ---
-with st.expander("☁️ Word Clouds"):
-    st.markdown("**Positive Reviews**")
-    pos_text = " ".join(df[df.sentiment_binary == 1]["cleaned_text"])
-    pos_cloud = WordCloud(width=600, height=300).generate(pos_text)
-    st.image(pos_cloud.to_array(), caption="Words from positive reviews")
+# --- Top Words Tables (Replacement for WordClouds) ---
+def get_top_words(series, n=10):
+    words = " ".join(series).split()
+    top = Counter(words).most_common(n)
+    return pd.DataFrame(top, columns=["Word", "Count"])
 
-    st.markdown("**Negative Reviews**")
-    neg_text = " ".join(df[df.sentiment_binary == 0]["cleaned_text"])
-    neg_cloud = WordCloud(width=600, height=300).generate(neg_text)
-    st.image(neg_cloud.to_array(), caption="Words from negative reviews")
+with st.expander("📄 Most Common Words by Sentiment"):
+    st.markdown("**Top words in Positive Reviews**")
+    st.dataframe(get_top_words(df[df.sentiment_binary == 1]["cleaned_text"]))
 
-# --- Top Predictive Words ---
+    st.markdown("**Top words in Negative Reviews**")
+    st.dataframe(get_top_words(df[df.sentiment_binary == 0]["cleaned_text"]))
+
+# --- Top Predictive Words (Static for now) ---
 with st.expander("🧠 Top Words That Predict Sentiment"):
     st.write("These are placeholder words from logistic regression results.")
     st.dataframe(pd.DataFrame({

@@ -11,14 +11,14 @@ st.markdown("Type a review and this app will predict whether it's **positive** o
 # --- Load Model ---
 @st.cache_resource
 def load_model():
-    return joblib.load("logreg_sentiment.pkl")
+    return joblib.load("new_sentiment_model.pkl")
 
 model = load_model()
 
 # --- Load Dataset ---
 @st.cache_data
 def load_data():
-    return pd.read_csv("https://raw.githubusercontent.com/Alopez881/ECS171-MachineLearning/refs/heads/master/preprocessed_reviews.csv")
+    return pd.read_csv("preprocessed_reviews.csv")
 
 df = load_data()
 
@@ -32,17 +32,45 @@ if submitted:
     if review.strip() == "":
         st.warning("Please enter a review to analyze.")
     else:
-        pred = model.predict([review])[0]
+        input_data = {
+            'cleaned_text': [review],
+            'has_upvotes': [0],
+            'review_length': [len(review.split())],
+            'exclamation_count': [review.count('!')],
+            'question_count': [review.count('?')],
+            'ngram_great app': [0],
+            'ngram_good app': [0],
+            'ngram_easy use': [0],
+            'ngram_love app': [0],
+            'ngram_pro version': [0],
+            'ngram_google calendar': [0],
+            'ngram_free version': [0],
+            'ngram_use app': [0],
+            'ngram_like app': [0],
+            'ngram_doesnt work': [0],
+            'ngram_really like app': [0],
+            'ngram_app easy use': [0],
+            'ngram_buy pro version': [0],
+            'ngram_using app years': [0],
+            'ngram_paid pro version': [0],
+            'ngram_really good app': [0],
+            'ngram_simple easy use': [0],
+            'ngram_used app years': [0],
+            'ngram_sync google calendar': [0],
+            'ngram_todo list app': [0]
+        }
+
+        input_df = pd.DataFrame(input_data)
+        pred = model.predict(input_df)[0]
         label = "Positive 😊" if pred == 1 else "Negative 😞"
         st.success(f"**Sentiment:** {label}")
 
 # --- Sentiment Distribution ---
 with st.expander("📊 Sentiment Distribution"):
-    st.write("Shows how many reviews are positive vs. negative.")
     sentiment_counts = df["sentiment_binary"].value_counts().rename({0: "Negative", 1: "Positive"})
     st.bar_chart(sentiment_counts)
 
-# --- Top Words Tables (Replacement for WordClouds) ---
+# --- Top Words Table ---
 def get_top_words(series, n=10):
     words = " ".join(series).split()
     top = Counter(words).most_common(n)
@@ -51,11 +79,10 @@ def get_top_words(series, n=10):
 with st.expander("📄 Most Common Words by Sentiment"):
     st.markdown("**Top words in Positive Reviews**")
     st.dataframe(get_top_words(df[df.sentiment_binary == 1]["cleaned_text"]))
-
     st.markdown("**Top words in Negative Reviews**")
     st.dataframe(get_top_words(df[df.sentiment_binary == 0]["cleaned_text"]))
 
-# --- Top Predictive Words (Static for now) ---
+# --- Top Predictive Words (Static Placeholder) ---
 with st.expander("🧠 Top Words That Predict Sentiment"):
     st.write("These are placeholder words from logistic regression results.")
     st.dataframe(pd.DataFrame({
@@ -63,7 +90,7 @@ with st.expander("🧠 Top Words That Predict Sentiment"):
         "Negative Words": ["useless", "uninstalled", "doesn't", "buggy", "complicated"]
     }))
 
-# --- Sentiment Over Time (Using Streamlit line_chart) ---
+# --- Sentiment Over Time ---
 with st.expander("📅 Sentiment Over Time"):
     df['at'] = pd.to_datetime(df['at'], errors='coerce')
     sentiment_by_day = df.dropna(subset=['at']).groupby(df['at'].dt.date)['sentiment_binary'].mean()

@@ -1,19 +1,19 @@
-import pandas as pd
 import streamlit as st
+import pandas as pd
 import joblib
 
-# Load model
-model = joblib.load('logreg_sentiment.pkl')  # Trained model (pipeline)
+# Load the trained model
+model = joblib.load('new_sentiment_model.pkl')  # Make sure this file is in the same folder
 
-st.title('App Review Sentiment Detector')
-st.info('Write a review about an app and this model will predict whether it is **positive** or **negative**.')
+# Streamlit UI
+st.title('App Review Sentiment Classifier')
+st.info('Type a review of a mobile app and the model will predict if it is **positive** or **negative**.')
 
-# Get input
-user_input = st.text_area("Write your app review here:")
+# Text input
+user_input = st.text_area("Enter your app review:")
 
-# Predict
+# Prediction
 if user_input:
-    input_df = pd.DataFrame({'content': [user_input]})  # Replace 'content' if your model expects another column name
-    prediction = model.predict(input_df)[0]
-    sentiment = 'Positive 😊' if prediction == 1 else 'Negative 😞'
-    st.subheader(f"Predicted Sentiment: **{sentiment}**")
+    prediction = model.predict([user_input])[0]
+    label = 'Positive 😊' if prediction == 1 else 'Negative 😞'
+    st.success(f'The review is predicted to be: **{label}**')

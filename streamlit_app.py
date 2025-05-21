@@ -1,55 +1,78 @@
 import streamlit as st
+import pandas as pd
 import joblib
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 
-# --- Styling ---
-st.set_page_config(page_title="App Review Sentiment", page_icon="📱", layout="centered")
+# --- Page Setup ---
+st.set_page_config(page_title="App Review Sentiment Analyzer", page_icon="💬", layout="centered")
+st.title("💬 App Review Sentiment Analyzer")
+st.markdown("Type a review and this app will predict whether it's **positive** or **negative**.")
 
-# --- Custom CSS for style ---
-st.markdown("""
-    <style>
-    .big-font {
-        font-size: 24px !important;
-    }
-    .center-text {
-        text-align: center;
-    }
-    .stTextArea textarea {
-        font-size: 18px;
-        padding: 10px;
-    }
-    .stButton button {
-        background-color: #4CAF50;
-        color: white;
-        font-size: 16px;
-        padding: 0.5em 2em;
-        border-radius: 8px;
-        margin-top: 1em;
-    }
-    .stButton button:hover {
-        background-color: #45a049;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# --- Load Model ---
+@st.cache_resource
+def load_model():
+    return joblib.load("new_sentiment_model.pkl")
 
-# --- Header ---
-st.markdown("<h1 class='center-text'>📱 App Review Sentiment Classifier</h1>", unsafe_allow_html=True)
-st.markdown("<p class='big-font center-text'>Paste a review below and find out if it's positive or negative.</p>", unsafe_allow_html=True)
+model = load_model()
 
-# --- Input Area ---
-user_input = st.text_area("Write your app review here 👇")
+# --- Load Dataset ---
+@st.cache_data
+def load_data():
+    return pd.read_csv("preprocessed_reviews.csv")
 
-# --- Button and Prediction Section (Logic Placeholder) ---
-if st.button("Analyze Sentiment"):
-    if user_input.strip() == "":
-        st.warning("Please enter a review before clicking Analyze.")
+df = load_data()
+
+# --- Chat Box Form ---
+with st.form("chat_form"):
+    review = st.text_area("📨 Your app review:", height=150, placeholder="Write your review here...")
+    submitted = st.form_submit_button("Analyze Sentiment")
+
+# --- Prediction Output ---
+if submitted:
+    if review.strip() == "":
+        st.warning("Please enter a review to analyze.")
     else:
-        # Placeholder result (you can connect your model later)
-        st.markdown("---")
-        st.subheader("🔍 Predicted Sentiment:")
-        st.success("Positive 😊")  # ← swap with model result later
-        st.caption("This is a placeholder result. Model output will appear here once connected.")
+        pred = model.predict([review])[0]
+        label = "Positive 😊" if pred == 1 else "Negative 😞"
+        st.success(f"**Sentiment:** {label}")
 
-# --- Future Section for Model Details, Uploads, or Charts ---
-with st.expander("📊 Want to see the data or upload your own?"):
-    st.write("This space is reserved for displaying review datasets or letting users upload their own CSV files.")
-    st.button("Upload Dataset (Coming Soon)")
+# --- Sentiment Distribution ---
+with st.expander("📊 Sentiment Distribution"):
+    st.write("Shows how many reviews are positive vs. negative.")
+    sentiment_counts = df["sentiment_binary"].value_counts()
+    st.bar_chart(sentiment_counts)
+
+# --- Word Clouds ---
+with st.expander("☁️ Word Clouds"):
+    st.markdown("**Positive Reviews**")
+    pos_text = " ".join(df[df.sentiment_binary == 1]["cleaned_text"])
+    st.image(WordCloud(width=600, height=300).generate(pos_text).to_array())
+
+    st.markdown("**Negative Reviews**")
+    neg_text = " ".join(df[df.sentiment_binary == 0]["cleaned_text"])
+    st.image(WordCloud(width=600, height=300).generate(neg_text).to_array())
+
+# --- Top Predictive Words ---
+with st.expander("🧠 Top Words That Predict Sentiment"):
+    st.write("These are placeholder words from logistic regression results.")
+    st.write(pd.DataFrame({
+        "Positive Words": ["love", "great", "easy", "helpful", "amazing"],
+        "Negative Words": ["useless", "uninstalled", "doesn't", "buggy", "complicated"]
+    }))
+
+# --- Sentiment Over Time ---
+with st.expander("📅 Sentiment Over Time"):
+    df['at'] = pd.to_datetime(df['at'], errors='coerce')
+    daily_sentiment = df.dropna(subset=['at']).groupby(df['at'].dt.date)['sentiment_binary'].mean()
+    st.line_chart(daily_sentiment)
+
+# --- Review Browser ---
+with st.expander("🔍 Browse Reviews by Sentiment"):
+    choice = st.radio("Show reviews that are...", ["All", "Positive", "Negative"])
+    if choice == "Positive":
+        st.dataframe(df[df.sentiment_binary == 1][["content", "score"]].head(20))
+    elif choice == "Negative":
+        st.dataframe(df[df.sentiment_binary == 0][["content", "score"]].head(20))
+    else:
+        st.dataframe(df[["content", "score"]].head(20))

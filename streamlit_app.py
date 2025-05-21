@@ -68,7 +68,7 @@ if submitted:
 # --- Sentiment Distribution ---
 with st.expander("📊 Sentiment Distribution"):
     sentiment_counts = df["sentiment_binary"].value_counts().rename({0: "Negative", 1: "Positive"})
-    st.bar_chart(sentiment_counts)
+    st.area_chart(sentiment_counts)
 
 # --- Top Words Table ---
 def get_top_words(series, n=10):

@@ -11,7 +11,7 @@ st.markdown("Type a review and this app will predict whether it's **positive** o
 # --- Load Model ---
 @st.cache_resource
 def load_model():
-    return joblib.load("new_sentiment_model.pkl")
+    return joblib.load("logreg_sentiment.pkl")
 
 model = load_model()
 

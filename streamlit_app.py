@@ -73,7 +73,13 @@ with st.expander("📊 Sentiment Distribution"):
 # --- Top Words Table ---
 def get_top_words(series, n=10):
     words = " ".join(series).split()
-    top = Counter(words).most_common(n)
+    counter = Counter(words)
+    
+    # Remove "app" (case-insensitive)
+    counter.pop("app", None)
+    counter.pop("App", None)
+    
+    top = counter.most_common(n)
     return pd.DataFrame(top, columns=["Word", "Count"])
 
 with st.expander("📄 Most Common Words by Sentiment"):

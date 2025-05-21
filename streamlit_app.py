@@ -90,10 +90,22 @@ with st.expander("📄 Most Common Words by Sentiment"):
 
 
 # --- Sentiment Over Time ---
-with st.expander("📊 Average Sentiment Over Time (Bar Chart)"):
+with st.expander("📊 Average Sentiment Over Time (Monthly, Cleaner Bar Chart)"):
     df['at'] = pd.to_datetime(df['at'], errors='coerce')
-    daily_avg = df.dropna(subset=['at']).groupby(df['at'].dt.date)['sentiment_binary'].mean()
-    st.bar_chart(daily_avg)
+    
+    # Group by month instead of day
+    monthly_avg = (
+        df.dropna(subset=['at'])
+          .groupby(df['at'].dt.to_period('M'))['sentiment_binary']
+          .mean()
+          .reset_index()
+    )
+
+    # Convert Period to datetime for plotting
+    monthly_avg['at'] = monthly_avg['at'].dt.to_timestamp()
+
+    st.bar_chart(monthly_avg.set_index('at'))
+
 
 # --- Review Browser ---
 with st.expander("🔍 Browse Reviews by Sentiment"):

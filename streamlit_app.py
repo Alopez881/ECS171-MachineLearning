@@ -104,5 +104,5 @@ with st.expander("🔍 Browse Reviews by Sentiment"):
     elif choice == "Negative":
         st.dataframe(df[df.sentiment_binary == 0][["content", "score"]].head(20))
     elif choice == "Positive":
-        st.dataframe(df[(df.sentiment_binary == 1) | (df.sentiment_binary == 2)][["content", "score"]].head(250))
+        st.dataframe(df[(df.sentiment_binary == 3) | (df.sentiment_binary == 2)][["content", "score"]].head(250))
         
